@@ -16,7 +16,7 @@ class GhosttyCmux < Formula
   desc "Ghostty + Cmux + Zed — AI Agent 多协作编程终端栈"
   homepage "https://github.com/madlouse/ghostty-optimization"
   url "https://github.com/madlouse/ghostty-optimization/archive/refs/heads/main.tar.gz"
-  sha256 "de0c84a31511ce3448ae5887e44fcca871e7b47b8eb0bf712d44726ac09f3921"
+  sha256 "ad01abffa18874375fb7ee62e89126febe649047ac2f6835351699122591afe7"
   license "MIT"
   version "1.0.0"
 
