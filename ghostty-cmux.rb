@@ -15,10 +15,10 @@
 class GhosttyCmux < Formula
   desc "Ghostty + Cmux + Zed — AI Agent 多协作编程终端栈"
   homepage "https://github.com/madlouse/ghostty-optimization"
-  url "https://github.com/madlouse/ghostty-optimization/archive/refs/heads/main.tar.gz"
-  sha256 "ad01abffa18874375fb7ee62e89126febe649047ac2f6835351699122591afe7"
+  url "https://github.com/madlouse/ghostty-optimization/archive/refs/tags/v1.1.0.tar.gz"
+  sha256 "6d6278b51f27aec0f8312e267cf839685012f01ed962e752365c594bb1881c9a"
   license "MIT"
-  version "1.0.0"
+  version "1.1.0"
 
   # Cmux only supports macOS
   depends_on macos: :ventura
@@ -36,25 +36,16 @@ class GhosttyCmux < Formula
   depends_on "font-jetbrains-mono-nerd-font" => :recommended
 
   def install
-    # Clone the ghostty-optimization repo to libexec
-    ohai "Cloning ghostty-optimization config repository..."
-    system "git", "clone",
-           "--depth", "1",
-           "--branch", "main",
-           "https://github.com/madlouse/ghostty-optimization.git",
-           buildpath/"ghostty-optimization"
-
-    libexec.install buildpath/"ghostty-optimization"
+    # Install entire tree into libexec/ghostty-optimization/
+    (libexec/"ghostty-optimization").install Dir["*"]
   end
 
   def post_install
     setup_script = libexec/"ghostty-optimization/setup/bootstrap.sh"
 
-    # Run bootstrap in non-interactive mode
-    # --force: skip dry-run, apply all configs
-    # Redirect output to /dev/null to avoid cluttering terminal
+    # Run bootstrap in dry-run mode on install; user runs manually to apply
     ohai "Running setup (this may prompt for sudo on first run)..."
-    system "bash", setup_script.to_s, "--force"
+    system "bash", setup_script.to_s
   end
 
   def caveats
