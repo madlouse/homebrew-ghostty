@@ -23,17 +23,15 @@ class GhosttyCmux < Formula
   # Cmux only supports macOS
   depends_on macos: :ventura
 
-  # Core tools
-  depends_on "manaflow-ai/cmux/cmux" => :recommended
-  depends_on "zed" => :recommended
+  # CLI tools installable as Homebrew formulae
   depends_on "starship" => :recommended
   depends_on "fastfetch" => :recommended
   depends_on "btop" => :recommended
   depends_on "zsh-autosuggestions" => :recommended
   depends_on "zsh-syntax-highlighting" => :recommended
 
-  # Font
-  depends_on "font-jetbrains-mono-nerd-font" => :recommended
+  # Note: Cmux and Zed are installed via Brewfile (bootstrap.sh handles this)
+  # They are not Homebrew formulae and cannot be listed as depends_on
 
   def install
     # Install entire tree into libexec/ghostty-optimization/
