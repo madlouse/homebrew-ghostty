@@ -6,8 +6,11 @@
 # Install:
 #   brew install ghostty-cmux
 #
-# Upgrade:
-#   brew upgrade ghostty-cmux   # reinstall re-runs post_install
+# Daily config sync:
+#   ghostty-cmux-sync
+#
+# One-time legacy migration:
+#   brew upgrade ghostty-cmux   # install the sync wrapper and re-run post_install
 #
 # Uninstall:
 #   brew uninstall ghostty-cmux
@@ -19,6 +22,7 @@ class GhosttyCmux < Formula
   sha256 "6d6278b51f27aec0f8312e267cf839685012f01ed962e752365c594bb1881c9a"
   license "MIT"
   version "1.1.0"
+  revision 1
 
   # Cmux only supports macOS
   depends_on macos: :ventura
@@ -36,14 +40,27 @@ class GhosttyCmux < Formula
   def install
     # Install entire tree into libexec/ghostty-optimization/
     (libexec/"ghostty-optimization").install Dir["*"]
+
+    (bin/"ghostty-cmux-sync").write <<~SH
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      sync_url="${GHOSTTY_CMUX_SYNC_URL:-https://raw.githubusercontent.com/madlouse/ghostty-optimization/main/setup/sync.sh}"
+      tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/ghostty-cmux-sync-wrapper.XXXXXX")"
+      trap 'rm -rf "$tmp_dir"' EXIT
+
+      curl -fsSL "$sync_url" -o "$tmp_dir/sync.sh"
+      chmod +x "$tmp_dir/sync.sh"
+      exec bash "$tmp_dir/sync.sh" "$@"
+    SH
+    chmod 0755, bin/"ghostty-cmux-sync"
   end
 
   def post_install
-    setup_script = libexec/"ghostty-optimization/setup/bootstrap.sh"
+    sync_cmd = bin/"ghostty-cmux-sync"
 
-    # Run bootstrap in dry-run mode on install; user runs manually to apply
-    ohai "Running setup (this may prompt for sudo on first run)..."
-    system "bash", setup_script.to_s
+    ohai "Syncing latest ghostty-optimization snapshot and running bootstrap..."
+    system sync_cmd.to_s
   end
 
   def caveats
@@ -54,8 +71,8 @@ class GhosttyCmux < Formula
 
         多 Agent 模式:
           open -a Cmux
-          cw myproject     # 新建 Workspace
-          cc               # 启动 Claude Code
+          cw .             # 为当前目录新建 Workspace
+          cc               # 在当前 Cmux workspace 中分屏启动 Claude Code
           zed .            # 编辑文件
 
         轻量独立模式:
@@ -66,7 +83,11 @@ class GhosttyCmux < Formula
         Zed:          ~/.config/zed/settings.json
 
       升级配置:
-        brew upgrade ghostty-cmux   # 重新拉取最新配置
+        ghostty-cmux-sync           # 拉取 main 最新快照并重新运行 bootstrap
+        ghostty-cmux-sync --dry-run # 预览更新
+
+      旧版本迁移:
+        brew upgrade ghostty-cmux   # 升级一次以安装 ghostty-cmux-sync wrapper
 
       完整文档:
         #{libexec}/ghostty-optimization/README.md
@@ -74,8 +95,10 @@ class GhosttyCmux < Formula
   end
 
   test do
-    # Smoke test: verify bootstrap script exists and is executable
+    # Smoke test: verify bootstrap payload and sync wrapper exist
     assert_predicate libexec/"ghostty-optimization/setup/bootstrap.sh", :exist?
     assert_predicate libexec/"ghostty-optimization/setup/bootstrap.sh", :executable?
+    assert_predicate bin/"ghostty-cmux-sync", :exist?
+    assert_predicate bin/"ghostty-cmux-sync", :executable?
   end
 end

@@ -9,7 +9,10 @@
 brew tap madlouse/ghostty https://github.com/madlouse/homebrew-ghostty
 brew install ghostty-cmux
 
-# 升级（自动拉取最新配置）
+# 日常同步最新配置
+ghostty-cmux-sync
+
+# 如果你之前装的是旧版 formula，先升级一次拿到 sync wrapper
 brew upgrade ghostty-cmux
 ```
 
@@ -36,9 +39,9 @@ bash setup/verify.sh
 **幂等安装** — 内容一致时自动跳过，可重复执行无副作用：
 
 ```bash
-bash setup/bootstrap.sh --dry-run  # 预览将要执行的操作
-bash setup/bootstrap.sh             # 实际部署（幂等）
-bash setup/bootstrap.sh --force      # 强制重新部署
+ghostty-cmux-sync --dry-run          # 预览同步和部署动作
+ghostty-cmux-sync                    # 同步 main 最新快照并幂等部署
+ghostty-cmux-sync --force            # 强制重新部署
 ```
 
 **验证** — 安装后检查配置一致性（精确 diff，不只是文件存在性）：
@@ -62,3 +65,4 @@ brew uninstall ghostty-cmux
 ## 配置文件源码
 
 配置版本管理在 [ghostty-optimization](https://github.com/madlouse/ghostty-optimization) 仓库。
+Homebrew formula 只负责发放 bootstrap / sync 入口，最新配置由 `ghostty-cmux-sync` 从 upstream `main` 快照获取。
