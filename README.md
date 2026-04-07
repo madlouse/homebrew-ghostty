@@ -19,7 +19,7 @@ brew upgrade ghostty-cmux
 安装后运行验证脚本确认状态：
 
 ```bash
-bash setup/verify.sh
+ghostty-cmux-verify
 ```
 
 ## 包含内容
@@ -47,8 +47,11 @@ ghostty-cmux-sync --force            # 强制重新部署
 **验证** — 安装后检查配置一致性（精确 diff，不只是文件存在性）：
 
 ```bash
-bash setup/verify.sh
+ghostty-cmux-verify
 ```
+
+`ghostty-cmux-verify` 会优先使用 `ghostty-cmux-sync` 同步后的最新源码验证脚本；
+如果本机还没有 managed source，则回退到 formula 自带的打包版本。
 
 **Agent 友好** — 完整安装文档：[ghostty-optimization/AGENTS.md](https://github.com/madlouse/ghostty-optimization/blob/main/AGENTS.md)
 
